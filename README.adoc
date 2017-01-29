@@ -1,3 +1,5 @@
+_This project was created to illustrate a StackOverflow question about http://stackoverflow.com/q/41926945/116639[adding a runtime dependency on a generated source set in Gradle]_
+
 This project demonstrates one of the innumerable headaches of using generated code in Gradle.
 
 The application has a main class in the main source set which dynamically loads a class from a generated source set. I don't think it actually matters that the other source set is generated; what's important is that it's a separate source set. The class in the generated source set has compile-time dependencies on both the main source set, and a module dependency. The main source set also has module dependencies. Got that?
