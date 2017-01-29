@@ -1,0 +1,59 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+sourceSets {
+    generated {
+        java {
+            srcDirs = ["$buildDir/src/generated/java"]
+            compileClasspath += sourceSets.main.output
+        }
+    }
+    main {
+        java {
+            runtimeClasspath += sourceSets.generated.output + sourceSets.generated.runtimeClasspath
+        }
+    }
+}
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.22'
+    runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.9'
+
+    generatedCompile group: 'org.fusesource.jansi', name: 'jansi', version: '1.14'
+}
+
+mainClassName = 'Application'
+
+task generateSource {
+    doLast {
+        def generatedSrcDir = sourceSets.generated.java.srcDirs[0]
+        generatedSrcDir.mkdirs()
+        // this is not how i generate code in my real project!
+        new File(generatedSrcDir, "GeneratedGreeter.java").write("""
+import static org.fusesource.jansi.Ansi.Color.BLUE;
+import static org.fusesource.jansi.Ansi.Color.DEFAULT;
+import static org.fusesource.jansi.Ansi.ansi;
+
+public class GeneratedGreeter extends Greeter {
+
+    @Override
+    protected String getName() {
+        return ansi().a("a ").fg(BLUE).a("generated").fg(DEFAULT).a(" class").toString();
+    }
+
+}
+""")
+    }
+}
+
+compileGeneratedJava.dependsOn generateSource
+build.dependsOn generatedClasses
+
+task runProperly(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = mainClassName
+}
